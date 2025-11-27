@@ -1,5 +1,5 @@
 # Stage 1: Build the app
-FROM eclipse-temurin:21-jdk AS builder
+FROM eclipse-temurin:17-jdk AS builder
 
 WORKDIR /app
 
@@ -9,14 +9,14 @@ COPY pom.xml ./
 
 COPY src ./src
 
-RUN ./mvnw clean package -DskipTests
+RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
 # Stage 2: Run the app
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
-EXPOSE 2000
+EXPOSE 2090
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

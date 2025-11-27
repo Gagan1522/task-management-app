@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./springbootbackend
+      dockerfile: backend.Dockerfile
+    container_name: task-backend
+    ports:
+      - "2090:2090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:projectdb
+      - SPRING_DATASOURCE_DRIVERCLASSNAME=org.h2.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect
+    networks:
+      - task-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2090/swagger-ui.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./reactfrontend
+      dockerfile: frontend.Dockerfile
+    container_name: task-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - task-network
+    environment:
+      - VITE_API_URL=http://localhost:2090
+
+networks:
+  task-network:
+    driver: bridge
